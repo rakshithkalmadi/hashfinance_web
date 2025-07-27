@@ -14,22 +14,29 @@ const firebaseConfig = {
 let app: FirebaseApp;
 let auth: Auth;
 
-function initializeFirebase() {
-    if (typeof window !== 'undefined') {
-        if (!getApps().length) {
-            app = initializeApp(firebaseConfig);
-        } else {
-            app = getApp();
-        }
-        auth = getAuth(app);
-    }
+const initializeFirebase = () => {
+  if (getApps().length === 0) {
+    app = initializeApp(firebaseConfig);
+  } else {
+    app = getApp();
+  }
+  auth = getAuth(app);
+};
+
+// Initialize Firebase only on the client side
+if (typeof window !== 'undefined') {
+  initializeFirebase();
 }
 
-initializeFirebase();
-
 export const getFirebaseAuth = (): Auth => {
-    if (!auth) {
-        initializeFirebase();
-    }
-    return auth;
+  // This function now simply returns the auth instance.
+  // It assumes initialization has happened.
+  // If called on the server, it might return undefined if not initialized,
+  // but since all usages are in client components, this should be safe.
+  if (!auth) {
+    // This is a fallback for scenarios where the module is loaded, but initialization hasn't run for some reason.
+    // This can happen in some HMR (Hot Module Replacement) scenarios during development.
+    initializeFirebase();
+  }
+  return auth;
 };
